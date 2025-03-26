@@ -59,6 +59,18 @@
             left: -65%;
             animation: 1s blink infinite ease-in-out;
         }
+
+        &.active.is-last::before{
+            left: 65%;
+        }
+
+        &.correct {
+            color: var(--green);
+        }
+
+        &.incorrect {
+            color: var(--red);
+        }
     }
 
     @keyframes blink {
@@ -89,7 +101,7 @@
 
     const INITIAL_TIME = 30
 
-    const TEXT = 'El viento soplaba con fuerza sobre la montaña mientras la luna iluminaba el camino. Las personas caminaban tranquilas, disfrutando del aire fresco de la noche. Un perro ladró en la distancia, alertando a su dueño de una sombra que cruzó la puerta. Mañana, al amanecer, los viajeros partirán hacia la ciudad con la esperanza de descubrir nuevas oportunidades.'
+    const TEXT = 'El viento soplaba con fuerza sobre la montaña mientras la luna iluminaba el camino. Las personas caminaban tranquilas, disfrutando del aire fresco de la noche.'
 
     let words = []
     let currentTime = INITIAL_TIME
@@ -134,6 +146,45 @@
         })
         $input.addEventListener('keydown', onkeydown) //teclas especiales como espacio o retroceso
         $input.addEventListener('keyup', onkeyup) //cuando el usuario suelta la tecla
+    }
+
+    function onkeydown(event) {
+        const { key } = event
+        console.log({ key }) //aca te quedaste 25/03/2025
+    }
+
+    function onkeyup() {
+        //recuperamos los elementos actuales
+        const $currentWord = $paragraph.querySelector('x-word.active')
+        const $currentLetter = $currentWord.querySelector('x-letter.active')
+
+        const currentWord = $currentWord.innerText.trim()
+        $input.maxLength = currentWord.length
+        console.log({ value: $input.value, currentWord })
+
+        const $allLetters = $currentWord.querySelectorAll('x-letter')
+
+        $allLetters.forEach($letter => $letter.classList.remove('correct', 'incorrect'))
+
+        $input.value.split('').forEach((char, index) => {
+            const $letter = $allLetters[index]
+            const letterToCheck = currentWord[index]
+
+            const isCorrect = char === letterToCheck
+            const letterClass = isCorrect ? 'correct' : 'incorrect'
+            $letter.classList.add(letterClass)
+        })
+
+        $currentLetter.classList.remove('active', 'is-last')
+        const inputLength = $input.value.length
+        const $nextActiveLetter = $allLetters[inputLength]
+
+        if($nextActiveLetter){
+            $nextActiveLetter.classList.add('active')
+        } else {
+            $currentLetter.classList.add('active', 'is-last')
+            // TODO: gameover si no hay próxima palabra.
+        }
     }
 
     function gameOver() {
